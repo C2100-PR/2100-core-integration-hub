@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: integration-hub
+  namespace: integration-hub
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: integration-hub
+  template:
+    metadata:
+      labels:
+        app: integration-hub
+    spec:
+      containers:
+      - name: integration-service
+        image: gcr.io/api-for-warp-drive/integration-service:latest
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+        env:
+        - name: DEEPMIND_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: deepmind-config
+              key: configuration
+        - name: LINKEDIN_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: linkedin-config
+              key: configuration
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: integration-service
+  namespace: integration-hub
+spec:
+  selector:
+    app: integration-hub
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP
