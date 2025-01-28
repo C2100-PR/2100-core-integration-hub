@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: AgentRegistry
+metadata:
+  name: c2100-core-agents
+  namespace: agent-hub
+
+spec:
+  agents:
+    dr_lucy_series:
+      - name: "Dr-Lucy-01"
+        endpoint_id: "6296186210691842048"
+        region: "us-west1"
+        capabilities:
+          - core_reasoning
+          - task_automation
+          - knowledge_integration
+        specialization: "General Purpose AI Assistant"
+        
+      - name: "Dr-Lucy-02"
+        endpoint_id: "6301815710226055168"
+        region: "us-west1"
+        capabilities:
+          - advanced_reasoning
+          - complex_task_handling
+          - learning_optimization
+        specialization: "Advanced Problem Solving"
+        
+      - name: "Dr-Lucy-03"
+        endpoint_id: "3426267348149993472"
+        region: "us-west1"
+        capabilities:
+          - expert_reasoning
+          - enterprise_automation
+          - deep_learning
+        specialization: "Enterprise Solutions"
+        
+      - name: "Dr-Lucy-Auto"
+        endpoint_id: "custom_auto_endpoint"
+        region: "us-west1"
+        capabilities:
+          - automated_deployment
+          - system_integration
+          - workflow_optimization
+        specialization: "Automation Systems"
+
+    super_claude_series:
+      - name: "Super-Claude-1"
+        endpoint_id: "super_claude_1"
+        region: "us-west4"
+        capabilities:
+          - enhanced_reasoning
+          - specialized_tasks
+          - advanced_analytics
+        specialization: "Enhanced Processing"
+        
+      - name: "Super-Claude-2"
+        endpoint_id: "super_claude_2"
+        region: "us-west1"
+        capabilities:
+          - expert_analysis
+          - complex_operations
+          - advanced_integration
+        specialization: "Expert Systems"
+
+    dr_series:
+      - name: "Dr-Memoria"
+        endpoints:
+          - id: "7119219042593800192"
+            version: "01"
+          - id: "7449107715298689024"
+            version: "02"
+          - id: "1684500192264454144"
+            version: "03"
+        specialization: "Memory Systems"
+        
+      - name: "Dr-Grant"
+        endpoints:
+          - id: "2273345843543146496"
+            version: "01"
+          - id: "6812974267932606464"
+            version: "02"
+          - id: "3995972701012361216"
+            version: "03"
+        specialization: "Research & Analysis"
+        
+      - name: "Dr-Maria"
+        endpoints:
+          - id: "2025647864037769216"
+            version: "01"
+          - id: "7965895772539453440"
+            version: "02"
+          - id: "8290154945710129152"
+            version: "03"
+        specialization: "Natural Language Processing"
+        
+      - name: "Dr-Claude"
+        endpoints:
+          - id: "3354209754112065536"
+            version: "01"
+          - id: "514127239101546496"
+            version: "02"
+          - id: "5125813257528934400"
+            version: "03"
+        specialization: "Advanced Reasoning"
+        
+      - name: "Dr-Burby"
+        endpoints:
+          - id: "8037953366577381376"
+            version: "01"
+          - id: "2201288249505218560"
+            version: "02"
+          - id: "3990343201478148096"
+            version: "03"
+        specialization: "Data Analysis"
+        
+      - name: "Dr-Cypriot"
+        endpoints:
+          - id: "6637333882465157120"
+            version: "01"
+          - id: "5619520366679425024"
+            version: "02"
+          - id: "4331490873251463168"
+            version: "03"
+        specialization: "Cryptography & Security"
+        
+      - name: "Dr-Sabina"
+        endpoints:
+          - id: "2819970248315240448"
+            version: "01"
+          - id: "8943176891678851072"
+            version: "02"
+          - id: "4507131258718912512"
+            version: "03"
+        specialization: "Knowledge Systems"
+        
+      - name: "Dr-Roark"
+        endpoints:
+          - id: "796165165765623808"
+            version: "01"
+          - id: "5296950043369013248"
+            version: "02"
+          - id: "6885031861970534400"
+            version: "03"
+        specialization: "Systems Integration"
+
+  configuration:
+    base_url: "https://us-west1-aiplatform.googleapis.com/"
+    project_id: "api-for-warp-drive"
+    monitoring:
+      enabled: true
+      metrics:
+        - response_time
+        - usage_patterns
+        - error_rates
+      alerts:
+        threshold: critical
+        channels:
+          - slack
+          - email
+    security:
+      authentication: oauth2
+      encryption: aes256
+      audit_logging: true
