@@ -43,6 +43,65 @@ spec:
           - workflow_optimization
         specialization: "Automation Systems"
 
+    dr_match_series:
+      - name: "Dr-Match-01"
+        endpoint_id: "match_01_endpoint"
+        region: "us-west1"
+        capabilities:
+          - profile_analysis
+          - skill_matching
+          - career_pathing
+        specialization: "Career Matching"
+        features:
+          - linkedin_integration
+          - skill_assessment
+          - recommendation_engine
+        
+      - name: "Dr-Match-02"
+        endpoint_id: "match_02_endpoint"
+        region: "us-west1"
+        capabilities:
+          - advanced_matching
+          - network_analysis
+          - opportunity_detection
+        specialization: "Advanced Career Analytics"
+        features:
+          - market_analysis
+          - trend_detection
+          - growth_planning
+        
+      - name: "Dr-Match-03"
+        endpoint_id: "match_03_endpoint"
+        region: "us-west1"
+        capabilities:
+          - enterprise_matching
+          - team_composition
+          - organizational_planning
+        specialization: "Enterprise Talent Solutions"
+        features:
+          - org_analytics
+          - team_optimization
+          - succession_planning
+        
+      - name: "Dr-Match-Linked-App"
+        endpoint_id: "match_linked_app"
+        region: "us-west1"
+        capabilities:
+          - linkedin_data_processing
+          - profile_enrichment
+          - network_optimization
+        specialization: "LinkedIn Integration"
+        features:
+          - profile_sync
+          - connection_analysis
+          - opportunity_matching
+        oauth:
+          provider: "linkedin"
+          scopes:
+            - r_liteprofile
+            - r_emailaddress
+            - w_member_social
+
     super_claude_series:
       - name: "Super-Claude-1"
         endpoint_id: "super_claude_1"
@@ -146,6 +205,14 @@ spec:
   configuration:
     base_url: "https://us-west1-aiplatform.googleapis.com/"
     project_id: "api-for-warp-drive"
+    integrations:
+      linkedin:
+        oauth_endpoint: "https://www.linkedin.com/oauth/v2"
+        api_version: "v2"
+        required_scopes:
+          - r_liteprofile
+          - r_emailaddress
+          - w_member_social
     monitoring:
       enabled: true
       metrics:
