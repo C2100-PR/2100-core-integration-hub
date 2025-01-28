@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: AgentHubConfig
+metadata:
+  name: agent-hub-core
+  version: "1.0"
+
+spec:
+  agentTypes:
+    - name: "DrLucy"
+      endpoint: ${DR_LUCY_ENDPOINT}
+      variants:
+        - "standard"
+        - "enterprise"
+        - "custom"
+    - name: "SuperClaude"
+      endpoint: ${SUPER_CLAUDE_ENDPOINT}
+      variants:
+        - "standard"
+        - "advanced"
+    
+  deploymentConfig:
+    oneClick:
+      - action: "template_selection"
+        timeEstimate: "30s"
+    twoClick:
+      - action: "customer_assignment"
+        timeEstimate: "30s"
+    threeClick:
+      - action: "deployment_confirmation"
+        timeEstimate: "30s"
+  
+  customerAssignment:
+    methods:
+      - type: "direct_clone"
+        description: "1:1 agent assignment"
+      - type: "shared_pool"
+        description: "Multiple customers share agent pool"
+      - type: "hierarchical"
+        description: "Parent-child agent relationship"
+    
+  templates:
+    - name: "customer_service"
+      baseAgent: "DrLucy"
+      presetConfig:
+        personality: "helpful_professional"
+        knowledge_base: "cs_standard"
+    - name: "technical_support"
+      baseAgent: "SuperClaude"
+      presetConfig:
+        personality: "technical_expert"
+        knowledge_base: "tech_advanced"
+    - name: "sales_assistant"
+      baseAgent: "DrLucy"
+      presetConfig:
+        personality: "sales_focused"
+        knowledge_base: "sales_playbook"
+
+  monitoring:
+    metrics:
+      - "deployment_time"
+      - "customer_satisfaction"
+      - "agent_utilization"
+      - "response_time"
+    alerts:
+      threshold: "critical"
+      channels:
+        - "slack"
+        - "email"
+
+  integration:
+    quantum_learning:
+      enabled: true
+      profile_sync: "realtime"
+    vertex_ai:
+      enabled: true
+      endpoint: ${VERTEX_AI_ENDPOINT}
+    pinecone:
+      enabled: true
+      environment: ${PINECONE_ENVIRONMENT}
