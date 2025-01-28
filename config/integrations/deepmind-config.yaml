@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: DeepMindIntegration
+metadata:
+  name: deepmind-core-integration
+  namespace: agent-hub
+
+spec:
+  connections:
+    vertex_ai:
+      enabled: true
+      models:
+        - name: "gemini-pro"
+          endpoint: ${GEMINI_PRO_ENDPOINT}
+        - name: "gemini-vision"
+          endpoint: ${GEMINI_VISION_ENDPOINT}
+  
+  security:
+    authentication:
+      type: "oauth2"
+      service_account: ${DEEPMIND_SERVICE_ACCOUNT}
+      
+  monitoring:
+    metrics:
+      - name: "inference_latency"
+      - name: "requests_per_second"
+      - name: "error_rate"
