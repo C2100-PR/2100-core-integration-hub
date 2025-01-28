@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-memory-config
+  namespace: agent-hub
+data:
+  memory_partitioning: |
+    {
+      "base_memory": "96Gi",
+      "partitions": {
+        "primary_context": "32Gi",
+        "long_term_memory": "24Gi",
+        "working_memory": "16Gi",
+        "model_cache": "16Gi",
+        "system_reserved": "8Gi"
+      }
+    }
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: agent-high-memory
+value: 1000000
+globalDefault: false
+description: "Priority class for high-memory agent workloads"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: agent-memory-quota
+  namespace: agent-hub
+spec:
+  hard:
+    memory: 1000Gi
+    cpu: "100"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: agent-deployment-template
+  namespace: agent-hub
+spec:
+  serviceName: "agent-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-instance
+  template:
+    metadata:
+      labels:
+        app: agent-instance
+    spec:
+      priorityClassName: agent-high-memory
+      containers:
+      - name: agent-runtime
+        image: gcr.io/api-for-warp-drive/agent-runtime:latest
+        resources:
+          requests:
+            memory: "96Gi"
+            cpu: "8"
+          limits:
+            memory: "96Gi"
+            cpu: "12"
+        volumeMounts:
+        - name: memory-store
+          mountPath: /memory
+        env:
+        - name: MEMORY_PARTITION_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: agent-memory-config
+              key: memory_partitioning
+        - name: VERTEX_AI_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: vertex-ai-endpoint
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+      volumes:
+      - name: memory-store
+        persistentVolumeClaim:
+          claimName: agent-memory-store
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: agent-memory-store
+  namespace: agent-hub
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi
+  storageClassName: premium-rwo
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: agent-pdb
+  namespace: agent-hub
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: agent-instance
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent-hpa
+  namespace: agent-hub
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: agent-deployment-template
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 60
