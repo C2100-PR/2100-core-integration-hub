@@ -1,0 +1,8 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: agent-admin
+rules:
+- apiGroups: ["", "apps", "autoscaling"]
+  resources: ["pods", "deployments", "services"]
+  verbs: ["get", "list", "watch", "create", "update", "delete"]

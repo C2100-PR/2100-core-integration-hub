@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: LinkedInConfig
+metadata:
+  name: linkedin-integration
+spec:
+  oauth2:
+    scopes: [r_liteprofile, r_emailaddress]
+    redirect_uri: https://api.2100.cool/oauth/linkedin
+  api_version: v2

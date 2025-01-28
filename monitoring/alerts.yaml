@@ -1,0 +1,12 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: agent-alerts
+spec:
+  groups:
+  - name: agent.rules
+    rules:
+    - alert: HighMemoryUsage
+      expr: container_memory_usage_bytes > 90Gi
+      for: 5m
+      severity: warning
