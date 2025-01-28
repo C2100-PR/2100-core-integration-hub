@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: QuantumLearningSchema
+metadata:
+  name: sec-rol-per-wild
+  version: "1.0"
+
+spec:
+  components:
+    SEC:
+      description: "Sector Classification"
+      type: "string"
+      required: true
+      vectorStore: "pinecone"
+      embedding: "vertex-ai"
+      attributes:
+        - industry_code
+        - sub_sector
+        - market_segment
+        - technological_maturity
+    
+    ROL:
+      description: "Corporate Role Classification"
+      type: "object"
+      required: true
+      attributes:
+        career_cluster:
+          type: "string"
+          categories:
+            - c-suite
+            - senior_management
+            - middle_management
+            - specialist
+            - individual_contributor
+        role_specific:
+          type: "string"
+          requires: "career_cluster"
+    
+    PER:
+      description: "Personal Attributes Profile"
+      type: "object"
+      required: true
+      attributes:
+        education:
+          type: "array"
+          items:
+            - institution
+            - degree
+            - field
+            - year
+        birth:
+          location:
+            type: "geopoint"
+          date:
+            type: "date"
+        influence_cities:
+          type: "array"
+          items:
+            city:
+              type: "string"
+            duration:
+              type: "duration"
+            impact_level:
+              type: "integer"
+              range: [1, 10]
+    
+    WILD:
+      description: "Wild Card Factors"
+      type: "array"
+      required: false
+      maxItems: 10
+      items:
+        type: "object"
+        properties:
+          factor_type:
+            type: "string"
+          value:
+            type: "any"
+          confidence:
+            type: "float"
+            range: [0.0, 1.0]
+          source:
+            type: "string"
+
+  integrations:
+    personalization:
+      endpoints:
+        - service: "ai-adoption-books"
+          url: "/api/v1/personalization/books"
+        - service: "immersive-learning"
+          url: "/api/v1/personalization/learning"
+        - service: "anthology-publishing"
+          url: "/api/v1/personalization/content"
+    
+    vector_storage:
+      type: "pinecone"
+      index: "quantum-learning"
+      namespace: "profiles"
+      dimensions: 1536
+    
+    ai_models:
+      - name: "profile-analyzer"
+        endpoint: ${DR_LUCY_ENDPOINT}
+        type: "analysis"
+      - name: "content-generator"
+        endpoint: ${VERTEX_AI_ENDPOINT}
+        type: "generation"
