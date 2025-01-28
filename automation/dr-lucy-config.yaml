@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dr-lucy-config
+  namespace: 2100-core
+data:
+  endpoints:
+    core: "3426267348149993472"  # Dr-Lucy-03
+    auto: "TBD"                  # Dr-Lucy-Auto
+    webhook: "https://api.2100.cool/v1/dr-lucy/webhook"
+  
+  features:
+    code_review: true
+    deployment_monitor: true
+    security_scan: true
+    performance_optimization: true
+    documentation_generation: true
+  
+  integrations:
+    github:
+      app_id: "dr-lucy-automation"
+      webhook_secret: ${GITHUB_WEBHOOK_SECRET}
+    vertex_ai:
+      project_id: "api-for-warp-drive"
+      location: "us-west1"
+    pinecone:
+      environment: "us-central1"
+  
+  automation:
+    deployment:
+      enabled: true
+      monitoring: true
+      rollback: automatic
+    security:
+      scan_schedule: "0 */4 * * *"
+      vulnerability_threshold: medium
+    performance:
+      monitoring_interval: 5m
+      alert_threshold: 90
+  
+  white_label:
+    enabled: true
+    customization:
+      branding: true
+      workflows: true
+      endpoints: true
+    deployment:
+      automated: true
+      validation: true
