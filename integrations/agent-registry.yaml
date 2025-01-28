@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: AgentRegistry
+metadata:
+  name: agent-registry
+spec:
+  agents:
+    dr_lucy_series:
+      - name: "Dr-Lucy-01"
+        endpoint_id: "6296186210691842048"
+...
