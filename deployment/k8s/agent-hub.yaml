@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agent-hub
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-hub
+  namespace: agent-hub
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent-hub
+  template:
+    metadata:
+      labels:
+        app: agent-hub
+    spec:
+      containers:
+      - name: agent-hub
+        image: gcr.io/api-for-warp-drive/agent-hub:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DR_LUCY_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: agent-secrets
+              key: dr-lucy-endpoint
+        - name: SUPER_CLAUDE_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: agent-secrets
+              key: super-claude-endpoint
+        - name: VERTEX_AI_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: ai-secrets
+              key: vertex-ai-endpoint
+        - name: PINECONE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: vector-store
+              key: pinecone-api-key
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-hub-service
+  namespace: agent-hub
+spec:
+  selector:
+    app: agent-hub
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: agent-hub-ingress
+  namespace: agent-hub
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  rules:
+  - host: "agents.2100.cool"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: agent-hub-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - "agents.2100.cool"
+    secretName: agent-hub-tls-cert
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent-hub-hpa
+  namespace: agent-hub
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent-hub
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
