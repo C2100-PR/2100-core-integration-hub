@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: DeepMindIntegration
+metadata:
+  name: deepmind-core-integration
+  namespace: agent-hub
+
+spec:
+  connections:
+    vertex_ai:
+      enabled: true
+      models:
+        - name: "gemini-pro"
+          version: "latest"
+          endpoint: ${GEMINI_PRO_ENDPOINT}
+        - name: "gemini-vision"
+          version: "latest"
+          endpoint: ${GEMINI_VISION_ENDPOINT}
+        - name: "gemini-nano"
+          version: "latest"
+          endpoint: ${GEMINI_NANO_ENDPOINT}
+    
+  integration_points:
+    dr_series:
+      - agent: "Dr-Lucy"
+        deepmind_models:
+          - "gemini-pro"
+          - "gemini-vision"
+        capabilities:
+          - advanced_reasoning
+          - multi_modal_processing
+          
+      - agent: "Dr-Match"
+        deepmind_models:
+          - "gemini-pro"
+        capabilities:
+          - career_analysis
+          - profile_matching
+          
+    vertex_endpoints:
+      base_url: "https://us-west1-aiplatform.googleapis.com/v1"
+      project: "api-for-warp-drive"
+      location: "us-west1"
+      
+  security:
+    authentication:
+      type: "oauth2"
+      service_account: "deepmind-integration@api-for-warp-drive.iam.gserviceaccount.com"
+      scopes:
+        - "https://www.googleapis.com/auth/cloud-platform"
+        - "https://www.googleapis.com/auth/cloud-language"
+        
+  monitoring:
+    metrics:
+      - name: "inference_latency"
+        type: "histogram"
+        description: "Model inference latency"
+      - name: "requests_per_second"
+        type: "counter"
+        description: "Request throughput"
+      - name: "error_rate"
+        type: "gauge"
+        description: "Error rate percentage"
+        
+  alert_rules:
+    - name: "high_latency"
+      condition: "inference_latency > 500ms"
+      severity: "warning"
+    - name: "error_spike"
+      condition: "error_rate > 5%"
+      severity: "critical"
+      
+  optimization:
+    caching:
+      enabled: true
+      ttl: "1h"
+    batching:
+      enabled: true
+      max_batch_size: 64
+      max_latency: "100ms"
