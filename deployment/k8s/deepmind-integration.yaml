@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: deepmind-integration
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deepmind-connector
+  namespace: deepmind-integration
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: deepmind-connector
+  template:
+    metadata:
+      labels:
+        app: deepmind-connector
+    spec:
+      containers:
+      - name: deepmind-connector
+        image: gcr.io/api-for-warp-drive/deepmind-connector:latest
+        env:
+        - name: GEMINI_PRO_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: deepmind-secrets
+              key: gemini-pro-endpoint
+        - name: GEMINI_VISION_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: deepmind-secrets
+              key: gemini-vision-endpoint
+        - name: GEMINI_NANO_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: deepmind-secrets
+              key: gemini-nano-endpoint
+        - name: DEEPMIND_SERVICE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              name: deepmind-secrets
+              key: service-account
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deepmind-service
+  namespace: deepmind-integration
+spec:
+  selector:
+    app: deepmind-connector
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deepmind-network-policy
+  namespace: deepmind-integration
+spec:
+  podSelector:
+    matchLabels:
+      app: deepmind-connector
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: agent-hub
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 443
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: deepmind-monitor
+  namespace: deepmind-integration
+spec:
+  selector:
+    matchLabels:
+      app: deepmind-connector
+  endpoints:
+  - port: http
+    interval: 15s
+    path: /metrics
