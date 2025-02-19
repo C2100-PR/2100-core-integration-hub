@@ -25,9 +25,13 @@ Core integration hub for 2100.cool ecosystem and white label solutions.
 │   └── deployment/
 ├── integrations/
 │   ├── deepmind/
-│   └── vertex-ai/
+│   │── vertex-ai/
+│   │── ray cluster
+│
 └── deployment/
     └── k8s/
+    └── rays/
+    
 ```
 
 ## Getting Started
