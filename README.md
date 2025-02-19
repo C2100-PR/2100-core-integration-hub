@@ -13,6 +13,7 @@ Core integration hub for 2100.cool ecosystem and white label solutions.
 
 ### Deployment
 - Kubernetes Configurations
+- Rays Cluster
 - Service Mesh
 - Monitoring Setup
 - Resource Management
